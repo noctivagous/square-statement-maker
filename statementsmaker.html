@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Square Statement Maker</title>
+  <style>
+    body {
+      margin: 0px;
+      padding: 0;
+    }
+
+    /* Styles for the table */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    #dropzone {
+
+      height: 200px;
+      border: 1px solid black;
+      padding: 20px;
+      background-color: gray;
+    }
+
+    #statementBody {
+      margin: auto;
+
+      width: 540pt;
+
+
+    }
+
+    #address p {
+      line-height: 0%;
+
+
+    }
+
+    #address {
+      font-family: Arial, Helvetica, sans-serif;
+      margin-bottom: 20pt;
+    }
+
+    h3 {
+      margin-left: 0;
+      padding-left: 0;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    #footer-postcard {
+      width: 70%;
+      margin: auto;
+
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <h2 id="dropzoneHeader">Square Statement Maker</h2>
+  <div id="dropzone">
+    Drop an exported .CSV file here containing outstanding invoices.
+  </div>
+
+
+  <div id="statementBody">
+
+    <h1>Statement</h1>
+
+
+    <table>
+
+      <tr>
+        <td>
+
+          <h3 id="statementDate" contenteditable="true"></h3>
+          <div id="address">
+            <p>Company Name</p>
+            <p>Address Line 1</p>
+            <p>City, State Zip Code</p>
+            <p>(000)000-0000 </p>
+            <p>info@example.com</p>
+          </div>
+
+        </td>
+        <td>
+          <h3 id="customerName"></h3>
+
+        </td>
+      </tr>
+
+    </table>
+
+
+
+
+
+    <table id="csvTable">
+      <thead>
+        <tr>
+
+          <th>Invoice Date</th>
+          <th>Invoice ID</th>
+          <th>Requested Amount</th>
+          <th>Amount Paid</th>
+        </tr>
+      </thead>
+      <tbody id="csvData">
+        <!-- Extracted CSV data will be inserted here -->
+      </tbody>
+      <tfoot>
+        <tr style="font-weight:bold;border-top:1px solid black;font-size:150%">
+          <td>Total Due:</td>
+          <td style="text-align:right">&nbsp;</td>
+
+          <td id="totalAmount" colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <p>Invoices can be paid by credit card in the e-mails.</p>
+
+    <p>Thank you for your business.</p>
+
+
+    <div id="footer-postcard">
+
+      
+
+    </div>
+
+  </div>
+
+  <script>
+    // Function to handle file drop
+    function handleDrop(event) {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+
+      if (file && file.name.endsWith(".csv")) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const contents = e.target.result;
+          const rows = contents.split("\n");
+          const data = [];
+
+          var total = 0;
+          var customerNameStr = "";
+
+          // Check if all "Amount Paid" entries are 0
+          var allAmountPaidZero = true;
+
+          // Extract the required columns from the CSV
+          for (let i = 1; i < rows.length; i++) {
+
+            const columns = rows[i].split(",");
+            const rowData = [columns[1], columns[3], columns[9], columns[12]]; // Invoice Date, Invoice ID, Requested Amount
+
+
+
+            var col9 = String(columns[9]);
+            if (col9.indexOf('$') > -1) {
+              var col9NoDollarSign = col9.replace('$', '');
+
+              const amount = parseFloat(col9NoDollarSign); // Remove '$' symbol
+              total += amount;
+
+
+              var col12 = String(columns[12]);
+              if (col12.indexOf('$') > -1) {
+                var col12NoDollarSign = col12.replace('$', '');
+
+                const amount2 = parseFloat(col12NoDollarSign); // Remove '$' symbol
+
+                if (amount2 > 0) {
+                  allAmountPaidZero = false;
+
+                }
+
+                total -= amount2;
+
+
+              }
+
+              customerNameStr = String(columns[4]);
+
+              const customerNameDiv = document.getElementById("customerName");
+              customerNameDiv.textContent = customerNameStr;
+
+              data.push(rowData);
+            }
+
+
+
+
+
+          }
+
+          // Generate HTML table rows
+          const tableBody = document.getElementById("csvData");
+          tableBody.innerHTML = "";
+
+          for (let i = 0; i < data.length; i++) {
+            const row = document.createElement("tr");
+            for (let j = 0; j < data[i].length; j++) {
+              const cell = document.createElement("td");
+              cell.textContent = data[i][j];
+              row.appendChild(cell);
+            }
+            tableBody.appendChild(row);
+          }
+
+          // Update the total amount
+          const totalCell = document.getElementById("totalAmount");
+          totalCell.textContent = "$" + total.toFixed(2);
+
+
+          // If all "Amount Paid" entries are 0, remove the "Amount Paid" column from the table
+          if (allAmountPaidZero) {
+
+
+
+            const tableHeaders = document.querySelectorAll("#csvTable th");
+            for (let i = 0; i < tableHeaders.length; i++) {
+              if (tableHeaders[i].textContent === "Amount Paid") {
+                tableHeaders[i].remove();
+                const tableDataCells = document.querySelectorAll("#csvData td:nth-child(4)");
+                for (let j = 0; j < tableDataCells.length; j++) {
+                  tableDataCells[j].remove();
+                }
+                break;
+              }
+            }
+          }
+
+
+        };
+
+        reader.readAsText(file);
+
+        // Hide dropzone and header
+        const dropzone = document.getElementById("dropzone");
+        dropzone.style.display = "none";
+        const dropzoneHeader = document.getElementById("dropzoneHeader");
+        dropzoneHeader.style.display = "none";
+
+
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0! 
+        var yyyy = today.getFullYear();
+        var today = mm + '/' + dd + '/' + yyyy;
+
+
+        const statementDateDiv = document.getElementById("statementDate");
+        statementDateDiv.textContent = today;
+
+
+
+
+      }// endif .csv
+    }
+
+    // Prevent default behavior for file drag and drop events
+    document.addEventListener("dragover", function (event) {
+      event.preventDefault();
+    }, false);
+
+    document.addEventListener("drop", handleDrop, false);
+  </script>
+</body>
+
+</html>

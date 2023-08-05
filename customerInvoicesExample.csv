@@ -1,0 +1,5 @@
+Invoice Token,Invoice Date,Time Zone,Invoice ID,Customer Name,Customer Email,Customer Phone,Invoice Title,Status,Requested Amount,Due Date,Last Payment Date,Amount Paid,Recurring Series ID,Invoice Delivery Method,Number of Installments,Tip Amount,Automatic Payment Source
+inv:0-ChB9J_ERUONIIN,2023-07-22,Central Time (US & Canada),#60193,The Breakfast House,accounting@breakfasthouse1.com,,"",Unpaid,$191.25,2023-07-05,,$0.00,,Email,1,$0.00,None
+inv:0-ChAIVK7f-1RMjsEIIN,2023-07-17,Central Time (US & Canada),#60185,The Breakfast House,accounting@breakfasthouse1.com,,"",Unpaid,$206.50,2023-06-31,,$0.00,,Email,1,$0.00,None
+inv:0-ChDTTbq5BZFXf1EIIN,2023-07-08,Central Time (US & Canada),#60173,The Breakfast House,accounting@breakfasthouse1.com,,"",Overdue,$127.50,2023-06-22,,$0.00,,Email,1,$0.00,None
+inv:0-ChDCdafo_tcFKNEIIN,2023-07-01,Central Time (US & Canada),#60162,The Breakfast House,accounting@breakfasthouse1.com,,"",Overdue,$127.50,2023-06-15,,$0.00,,Email,1,$0.00,None
